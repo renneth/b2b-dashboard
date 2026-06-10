@@ -18,7 +18,20 @@ import {
 } from "@/lib/types";
 
 const orders = new Map<string, OrderRecord>();
-const ORDER_STORE_PATH = path.join(process.cwd(), "files", "demo-orders.json");
+
+function resolveOrderStorePath(): string {
+  if (process.env.ORDER_STORE_PATH) {
+    return process.env.ORDER_STORE_PATH;
+  }
+
+  if (process.env.VERCEL === "1" || process.env.VERCEL_ENV) {
+    return path.join(process.env.TMPDIR ?? "/tmp", "b2b-dashboard", "demo-orders.json");
+  }
+
+  return path.join(process.cwd(), "files", "demo-orders.json");
+}
+
+const ORDER_STORE_PATH = resolveOrderStorePath();
 const ONGOING_STATUSES = new Set<WorkflowStatus>([
   "Submitted",
   "Awaiting Design",

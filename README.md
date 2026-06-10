@@ -8,7 +8,7 @@ This app is a demo B2B ordering workflow built with Next.js. It simulates roster
 - Creates draft orders and submits them into a shared dashboard queue.
 - Moves orders through a simplified operational workflow from `Draft` to `Invoiced`.
 - Generates mock ERP and invoice payloads during the workflow.
-- Persists demo orders and audit history in `files/demo-orders.json`.
+- Persists demo orders and audit history in `tmp/demo-orders.json`.
 
 ## Local setup
 
