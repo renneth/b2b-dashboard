@@ -4,8 +4,10 @@ B2B Dashboard Todo
 
 [x] Setup folder structure, todo, git, and local environment
 
-[ ] Setup database (pgsql) tables
+[x] Setup local file access and storage
 
-[ ] Design dashboard and initialization of data
+[x] Design dashboard and initialization of data
 
-[ ] 
+[x] Design workflow
+
+[x] Implement audit logs
