@@ -41,7 +41,7 @@ export default async function AuditLogsPage() {
 						<strong>
 							{new Set(auditFeed.map((event) => event.orderId)).size}
 						</strong>
-						<small>Persisted JSON-backed demo store</small>
+						<small>Persisted shared demo store</small>
 					</div>
 				</div>
 			</section>

@@ -1,6 +1,6 @@
 # B2B Dashboard
 
-This app is a demo B2B ordering workflow built with Next.js. It simulates roster validation, quote generation, order submission, workflow progression, warehouse picking, invoice creation, and an audit trail using local fixture files plus a JSON-backed demo order store.
+This app is a demo B2B ordering workflow built with Next.js. It simulates roster validation, quote generation, order submission, workflow progression, warehouse picking, invoice creation, and an audit trail using local fixture files plus a shared demo order store.
 
 ## What the app does
 
@@ -8,7 +8,7 @@ This app is a demo B2B ordering workflow built with Next.js. It simulates roster
 - Creates draft orders and submits them into a shared dashboard queue.
 - Moves orders through a simplified operational workflow from `Draft` to `Invoiced`.
 - Generates mock ERP and invoice payloads during the workflow.
-- Persists demo orders and audit history in `tmp/demo-orders.json`.
+- Persists demo orders and audit history in Redis on Vercel when configured, with a local JSON fallback for development.
 
 ## Local setup
 
@@ -25,6 +25,15 @@ pnpm dev
 ```
 
 Open `http://localhost:3000`.
+
+### Storage configuration
+
+The app will use Redis-backed storage automatically when either of these environment variable pairs is present:
+
+- `KV_REST_API_URL` and `KV_REST_API_TOKEN`
+- `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
+
+Without those variables, the app falls back to `files/demo-orders.json` for local development.
 
 ### Useful commands
 
@@ -87,18 +96,6 @@ Open `/audit-logs` to review the global event feed.
 - Track how many total events and unique orders exist in the demo store.
 - Use this page to confirm that order creation, submission, workflow progression, and invoicing are being recorded.
 
-## Demo data and storage
-
-The app reads seed data from the `files/` directory:
-
-- `accounts.csv` for demo customer accounts
-- `product_catalog.csv` for products, sizes, pricing, and stock
-- `sample_roster_upload.csv` for a valid upload example
-- `sample_roster_upload_invalid.csv` for validation failure scenarios
-- `order_statuses.json` for the displayed workflow states
-- `mock_erp_payload_example.json` and `mock_xero_invoice_example.json` for generated payload templates
-
-Created orders and audit history are persisted to `files/demo-orders.json`.
 
 ## Workflow summary
 
@@ -116,18 +113,17 @@ Read-only event log across all stored orders for tracking workflow activity and 
 
 ## Current limitations
 
-- This is a demo app with file-based storage only; there is no database or multi-user concurrency control.
-- Orders persist in a single JSON file, so concurrent writes or deployment to serverless/multi-instance environments would need a different storage model.
+- This is still a demo app. Redis persistence makes it deployable on Vercel, but the app still stores the full order list under a single key rather than using transactions or finer-grained records.
 - The workflow state list includes `PO Raised`, `In Production`, and `Received`, but those transitions are not implemented in the current UI or API.
 - ERP and invoice generation use mock payload templates only; no external systems are called.
 - Authentication, authorization, and role-based approvals are not implemented.
 - Validation only covers a focused set of CSV and stock checks; it does not cover all commercial or operational business rules.
 - There is no automated test suite yet.
-- Resetting demo data clears all stored orders and audit history globally for the local app instance.
+- Resetting demo data clears all stored orders and audit history for the configured shared store.
 
 ## Next implementation steps
 
-1. Replace JSON persistence with a real database and transaction-safe write path.
+1. Replace the single-key Redis persistence with a more granular data model and transaction-safe write path.
 2. Implement the missing workflow stages for `PO Raised`, `In Production`, and `Received`.
 3. Add authentication and role-based permissions for sales, design, warehouse, and finance actions.
 4. Introduce automated tests for CSV validation, and controlled tweaking of fields before pushing it to the next stage.

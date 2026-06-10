@@ -2,6 +2,8 @@ import { promises as fs } from "node:fs";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 
+import { Redis } from "@upstash/redis";
+
 import {
   buildQuote,
   groupQuoteLines,
@@ -18,6 +20,25 @@ import {
 } from "@/lib/types";
 
 const orders = new Map<string, OrderRecord>();
+
+const ORDER_STORE_KEY = process.env.ORDER_STORE_KEY ?? "demo-orders";
+
+let redisClient: Redis | null = null;
+
+function getRedisClient(): Redis | null {
+  const url = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (!url || !token) {
+    return null;
+  }
+
+  if (!redisClient) {
+    redisClient = new Redis({ url, token });
+  }
+
+  return redisClient;
+}
 
 function resolveOrderStorePath(): string {
   if (process.env.ORDER_STORE_PATH) {
@@ -51,8 +72,35 @@ export interface AuditFeedEvent extends AuditEvent {
   accountName: string;
 }
 
-async function persistOrders(): Promise<void> {
-  const payload = JSON.stringify([...orders.values()], null, 2);
+async function readStoredOrders(): Promise<OrderRecord[]> {
+  const redis = getRedisClient();
+
+  if (redis) {
+    return (await redis.get<OrderRecord[]>(ORDER_STORE_KEY)) ?? [];
+  }
+
+  try {
+    const raw = await fs.readFile(ORDER_STORE_PATH, "utf8");
+    return JSON.parse(raw) as OrderRecord[];
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+      throw error;
+    }
+
+    await writeStoredOrders([]);
+    return [];
+  }
+}
+
+async function writeStoredOrders(storedOrders: OrderRecord[]): Promise<void> {
+  const redis = getRedisClient();
+
+  if (redis) {
+    await redis.set(ORDER_STORE_KEY, storedOrders);
+    return;
+  }
+
+  const payload = JSON.stringify(storedOrders, null, 2);
   const tempPath = `${ORDER_STORE_PATH}.tmp`;
 
   await fs.mkdir(path.dirname(ORDER_STORE_PATH), { recursive: true });
@@ -60,22 +108,16 @@ async function persistOrders(): Promise<void> {
   await fs.rename(tempPath, ORDER_STORE_PATH);
 }
 
+async function persistOrders(): Promise<void> {
+  await writeStoredOrders([...orders.values()]);
+}
+
 async function ensureOrdersLoaded(): Promise<void> {
-  try {
-    const raw = await fs.readFile(ORDER_STORE_PATH, "utf8");
-    const storedOrders = JSON.parse(raw) as OrderRecord[];
+  const storedOrders = await readStoredOrders();
 
-    orders.clear();
-    for (const order of storedOrders) {
-      orders.set(order.id, order);
-    }
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
-      throw error;
-    }
-
-    orders.clear();
-    await persistOrders();
+  orders.clear();
+  for (const order of storedOrders) {
+    orders.set(order.id, order);
   }
 }
 
