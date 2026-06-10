@@ -61,6 +61,8 @@ export function DashboardClient({
 	const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 	const [feedback, setFeedback] = useState<string | null>(null);
 	const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
+	const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
+	const [isClearing, setIsClearing] = useState(false);
 	const [isPending, startTransition] = useTransition();
 
 	const queueFilter = useMemo<QueueFilter>(() => {
@@ -235,23 +237,36 @@ export function DashboardClient({
 		});
 	}
 
-	function clearDemoOrders(): void {
-		if (!window.confirm("Clear all stored demo orders and audit history?")) {
+	function openClearConfirm(): void {
+		setIsClearConfirmOpen(true);
+	}
+
+	function closeClearConfirm(): void {
+		if (isClearing) {
 			return;
 		}
 
-		startTransition(() => {
-			void postJson<{ ok: boolean }>("/api/orders/reset", {})
-				.then(() => {
-					setOrders([]);
-					setSelectedOrderId(null);
-					setIsProgressModalOpen(false);
-					setFeedback("Demo orders cleared.");
-				})
-				.catch((error: Error) => {
-					setFeedback(error.message);
-				});
-		});
+		setIsClearConfirmOpen(false);
+	}
+
+	async function clearDemoOrders(): Promise<void> {
+		setIsClearing(true);
+
+		try {
+			await postJson<{ ok: boolean }>("/api/orders/reset", {});
+			setOrders([]);
+			setSelectedOrderId(null);
+			setIsProgressModalOpen(false);
+			setIsClearConfirmOpen(false);
+			setFeedback("Demo orders cleared.");
+			router.refresh();
+		} catch (error) {
+			setFeedback(
+				error instanceof Error ? error.message : "Unable to clear demo orders.",
+			);
+		} finally {
+			setIsClearing(false);
+		}
 	}
 
 	function handleFilterChange(nextFilter: QueueFilter): void {
@@ -308,9 +323,10 @@ export function DashboardClient({
 						</Link>
 						<button
 							className="action-pill"
-							onClick={clearDemoOrders}
+							disabled={isClearing}
+							onClick={openClearConfirm}
 							type="button">
-							{isPending ? "Working" : "Clear demo data"}
+							{isClearing ? "Working" : "Clear demo data"}
 						</button>
 					</div>
 				</article>
@@ -606,6 +622,60 @@ export function DashboardClient({
 								);
 							})}
 						</ol>
+					</div>
+				</div>
+			) : null}
+
+			{isClearConfirmOpen ? (
+				<div
+					className="progress-modal-overlay"
+					onClick={(event) => {
+						if (event.target === event.currentTarget) {
+							closeClearConfirm();
+						}
+					}}
+					role="presentation">
+					<div
+						className="progress-modal"
+						onClick={(event) => event.stopPropagation()}>
+						<div className="panel-head">
+							<div>
+								<p>Confirm reset</p>
+								<h2>Clear demo data</h2>
+							</div>
+							<button
+								className="action-pill"
+								disabled={isClearing}
+								onClick={closeClearConfirm}
+								type="button">
+								Cancel
+							</button>
+						</div>
+
+						<div className="grid gap-4">
+							<p className="text-(--muted) text-sm leading-6">
+								This removes all stored demo orders and their audit history from
+								the JSON-backed demo store.
+							</p>
+							<div className="flex flex-wrap justify-end gap-2">
+								<button
+									className="action-pill"
+									disabled={isClearing}
+									onClick={closeClearConfirm}
+									type="button">
+									Keep data
+								</button>
+								<button
+									className="action-pill action-pill--primary"
+									disabled={isClearing}
+									onClick={() => {
+										void clearDemoOrders();
+									}}
+									type="button">
+									{isClearing ? "Clearing..." : "Clear demo data"}
+								</button>
+							</div>
+						</div>
 					</div>
 				</div>
 			) : null}

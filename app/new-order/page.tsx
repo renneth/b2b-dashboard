@@ -3,6 +3,8 @@ import Link from "next/link";
 import { NewOrderClient } from "@/components/new-order-client";
 import { getDashboardData, readFixture } from "@/lib/fixtures";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewOrderPage() {
 	const data = await getDashboardData();
 	const sampleCsv = await readFixture("sample_roster_upload.csv");

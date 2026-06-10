@@ -4,8 +4,14 @@ import { NextResponse } from "next/server";
 import { createOrder, listOrders } from "@/lib/order-store";
 import type { RosterRow } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
-  return NextResponse.json(await listOrders());
+  return NextResponse.json(await listOrders(), {
+    headers: {
+      "Cache-Control": "no-store, max-age=0",
+    },
+  });
 }
 
 export async function POST(request: Request) {
