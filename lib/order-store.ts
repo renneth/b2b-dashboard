@@ -45,8 +45,6 @@ const ONGOING_STATUSES = new Set<WorkflowStatus>([
   "Packed",
 ]);
 
-let loadOrdersPromise: Promise<void> | null = null;
-
 export interface AuditFeedEvent extends AuditEvent {
   orderId: string;
   externalOrderRef: string;
@@ -63,27 +61,22 @@ async function persistOrders(): Promise<void> {
 }
 
 async function ensureOrdersLoaded(): Promise<void> {
-  if (!loadOrdersPromise) {
-    loadOrdersPromise = (async () => {
-      try {
-        const raw = await fs.readFile(ORDER_STORE_PATH, "utf8");
-        const storedOrders = JSON.parse(raw) as OrderRecord[];
+  try {
+    const raw = await fs.readFile(ORDER_STORE_PATH, "utf8");
+    const storedOrders = JSON.parse(raw) as OrderRecord[];
 
-        orders.clear();
-        for (const order of storedOrders) {
-          orders.set(order.id, order);
-        }
-      } catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
-          throw error;
-        }
+    orders.clear();
+    for (const order of storedOrders) {
+      orders.set(order.id, order);
+    }
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+      throw error;
+    }
 
-        await persistOrders();
-      }
-    })();
+    orders.clear();
+    await persistOrders();
   }
-
-  await loadOrdersPromise;
 }
 
 function createAuditEvent(

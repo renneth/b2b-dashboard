@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 
 import { transitionOrder } from "@/lib/order-store";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(
   request: Request,
   context: { params: Promise<{ orderId: string }> },
@@ -19,7 +21,11 @@ export async function POST(
     revalidatePath("/");
     revalidatePath("/new-order");
     revalidatePath("/audit-logs");
-    return NextResponse.json(order);
+    return NextResponse.json(order, {
+      headers: {
+        "Cache-Control": "no-store, max-age=0",
+      },
+    });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Transition failed." },
