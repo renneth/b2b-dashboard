@@ -1,0 +1,4 @@
+account_id,account_name,contact_name,pricing_tier,discount_pct,requires_deposit,delivery_suburb,notes
+ACC-1001,Northside Football Club,Taylor Morgan,Gold,15,FALSE,Preston VIC,Returning customer
+ACC-1002,West Valley Sports Association,Jordan Reyes,Silver,10,TRUE,Footscray VIC,New customer; 50 percent deposit required
+ACC-1003,South Coast Juniors,Casey Nguyen,Bronze,5,TRUE,Geelong VIC,Small seasonal order

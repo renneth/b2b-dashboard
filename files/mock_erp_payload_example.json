@@ -1,0 +1,14 @@
+{
+  "external_order_ref": "B2B-2026-0001",
+  "account_code": "ACC-1001",
+  "status": "ERP Sync Pending",
+  "lines": [
+    {
+      "sku": "STK-JER-NAVY-Y8",
+      "size": "Y8",
+      "qty": 2,
+      "notes": "Pack U12 Boys Box"
+    }
+  ],
+  "integration_notes": "Mock payload only. Candidate should not call any real ERP."
+}

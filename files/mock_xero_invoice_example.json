@@ -1,0 +1,14 @@
+{
+  "invoice_ref": "INV-B2B-2026-0001",
+  "account_code": "ACC-1001",
+  "status": "DRAFT",
+  "line_amount_types": "Exclusive",
+  "lines": [
+    {
+      "description": "B2B teamwear order B2B-2026-0001",
+      "quantity": 1,
+      "unit_amount": 346.8
+    }
+  ],
+  "integration_notes": "Mock payload only. Candidate should not call real Xero APIs."
+}

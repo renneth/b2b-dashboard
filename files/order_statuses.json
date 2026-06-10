@@ -1,0 +1,38 @@
+{
+  "statuses": [
+    "Draft",
+    "Submitted",
+    "Awaiting Design",
+    "Design Approved / Locked",
+    "ERP Sync Pending",
+    "ERP Synced",
+    "PO Raised",
+    "In Production",
+    "Received",
+    "Picking",
+    "Packed",
+    "Invoiced"
+  ],
+  "rules": [
+    {
+      "from": "Draft",
+      "to": "Submitted",
+      "guard": "roster_validated && quote_total > 0"
+    },
+    {
+      "from": "Awaiting Design",
+      "to": "Design Approved / Locked",
+      "guard": "proof_uploaded && approved_by_authorized_user"
+    },
+    {
+      "from": "Design Approved / Locked",
+      "to": "ERP Sync Pending",
+      "guard": "locked_at is not null"
+    },
+    {
+      "from": "Packed",
+      "to": "Invoiced",
+      "guard": "packed_confirmed && invoice_not_already_created"
+    }
+  ]
+}

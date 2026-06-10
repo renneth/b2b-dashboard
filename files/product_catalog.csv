@@ -1,0 +1,8 @@
+product_sku,product_name,category,customization_type,size,unit_price_aud,stock_on_hand,reserved,incoming_eta,barcode,active
+STK-JER-NAVY-Y8,Stock Training Jersey Navy,Stock,none,Y8,38.00,42,4,2026-06-15,9300001000010,TRUE
+STK-JER-NAVY-ADULTM,Stock Training Jersey Navy,Stock,none,M,42.00,18,6,2026-06-15,9300001000011,TRUE
+EMB-POLO-BLK-ADULTM,Polo Shirt Black,Stock plus embellishment,heat_seal,M,55.00,20,5,,9300001000027,TRUE
+EMB-JACKET-ROYAL-ADULTL,Team Jacket Royal,Stock plus embellishment,heat_seal,L,88.00,7,3,2026-07-01,9300001000034,TRUE
+SUB-JER-CUSTOM-ADULTL,Sublimated Match Jersey,Custom sublimation,sublimated,L,72.00,0,0,2026-07-05,,TRUE
+BAG-TEAM-BLK-OSFA,Team Equipment Bag,Stock plus embellishment,heat_seal,OSFA,48.00,15,2,,9300001000041,TRUE
+SOCK-WHT-ADULT,Performance Socks White,Stock,none,ADULT,12.00,80,10,,9300001000058,TRUE

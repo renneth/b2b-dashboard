@@ -1,0 +1,5 @@
+team,player_name,player_number,product_sku,size,quantity,pack_group,customization_notes
+U12 Boys,A. Santos,7,STK-JER-NAVY-Y8,Y8,1,U12 Boys Box,Valid row
+U12 Boys,Missing SKU,9,BAD-SKU,Y8,1,U12 Boys Box,Invalid product SKU
+U15 Girls,Bad Quantity,12,SUB-JER-CUSTOM-ADULTL,L,zero,U15 Girls Box,Invalid quantity
+Senior Men,Bad Size,3,EMB-POLO-BLK-ADULTM,XXXL,1,Senior Men Box,Invalid size for selected product
